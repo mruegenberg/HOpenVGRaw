@@ -1,0 +1,56 @@
+name:                HOpenVGRaw
+
+version:             0.1.0.0
+
+synopsis:            Low level OpenVG / ShivaVG bindings
+
+homepage:            https://github.com/mruegenberg/HOpenVGRaw
+
+license:             BSD3
+
+license-file:        LICENSE
+
+author:              Marcel Ruegenberg
+
+maintainer:          github@dustlab.com
+
+category:            Graphics
+
+build-type:          Simple
+
+extra-source-files:  README.md
+
+cabal-version:       >=1.8
+-- >= 1.10
+
+Flag UsePkgConfig
+  Description: Use pkg-config to check for library dependencies.
+  Default: False
+
+library
+  exposed-modules:     Graphics.Rendering.ShivaVG.Raw
+                     , Graphics.Rendering.ShivaVG.Raw.Types
+  other-modules:       Graphics.Rendering.ShivaVG.Raw.Internal
+                     , Graphics.Rendering.ShivaVG.Raw.Unsafe
+
+  hs-source-dirs:      src
+
+  build-depends:       base >=4.6 && <4.7
+  build-tools:         c2hs
+
+  if flag(UsePkgConfig)
+    PkgConfig-Depends: libOpenVG
+  else
+    Includes: vg/openvg.h
+    Extra-Libraries: OpenVG
+  -- , vg/vgu.h
+  
+  -- Modules included in this library but not exported.
+  -- other-modules:       
+  
+  -- LANGUAGE extensions used by modules in this package.
+  -- other-extensions:    
+  
+  -- Directories containing source files.
+
+  
