@@ -1,6 +1,6 @@
 {-# LANGUAGE ForeignFunctionInterface #-}
 module Graphics.Rendering.ShivaVG.Raw.Unsafe where
--- this module contains a straightforward translation of most of the OpenVG API.
+-- this module contains a straightforward translation of unsafe parts of the OpenVG API.
 -- don't use this directly, since it doesn't ensure at all that you don't e.g
 -- try to set a int parameter with a float
 
@@ -15,14 +15,18 @@ import Foreign.Marshal.Array
 
 ------------- Getting and setting parameters -------------
 
+fromEnum' :: (Enum p) => p -> CInt
 fromEnum' = fromIntegral . fromEnum
 
-{#fun vgSetf as setf { fromEnum' `ParamType', `Float'} -> `()' #}
+-- instead of ParamType, we use Int as the param type argument because different param types (e.g ParamType and PaintParamType) can be put in there
+-- use fromEnum to go from ParamType to the value to use
 
-{#fun vgSeti as seti { fromEnum' `ParamType', `Int'} -> `()' #}
+{#fun vgSetf as setf `(Enum p)' => { fromEnum' `p', `Float'} -> `()' #}
 
-{#fun vgSetfv { fromEnum' `ParamType', `Int', id `Ptr VGfloat'} -> `()' #}
-setfv :: ParamType -> [Float] -> IO ()
+{#fun vgSeti as seti `(Enum p)' => { fromEnum' `p', `Int'} -> `()' #}
+
+{#fun vgSetfv `(Enum p)' => { fromEnum' `p', `Int', id `Ptr VGfloat'} -> `()' #}
+setfv :: (Enum p) => p -> [Float] -> IO ()
 setfv t vs = withArrayLen vs' (\len ptr -> vgSetfv t len ptr)
   where vs' = map realToFrac vs
         
@@ -59,8 +63,8 @@ getiv t c = allocaArray c $ \ptr -> do
 
 {#fun vgSetParameteri as setParameteri { id `VGHandle', `Int', `Int'} -> `()' #}
 
-{#fun vgSetParameterfv { id `VGHandle', fromEnum' `ParamType', `Int', id `Ptr VGfloat'} -> `()' #}    
-setParameterfv :: VGHandle -> ParamType -> [Float] -> IO ()
+{#fun vgSetParameterfv `(Enum p)' => { id `VGHandle', fromEnum' `p', `Int', id `Ptr VGfloat'} -> `()' #}    
+setParameterfv :: (Enum p) => VGHandle -> p -> [Float] -> IO ()
 setParameterfv h t vs = withArrayLen vs' (\len ptr -> vgSetParameterfv h t len ptr)
    where vs' = map realToFrac vs
 

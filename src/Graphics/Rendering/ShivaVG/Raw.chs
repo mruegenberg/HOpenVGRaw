@@ -5,6 +5,8 @@ module Graphics.Rendering.ShivaVG.Raw
          createContextSH
        , resizeSurfaceSH
        , destroyContextSH
+         -- * Modules
+       , module Graphics.Rendering.ShivaVG.Raw.Types
        )
        where
 
@@ -12,6 +14,7 @@ module Graphics.Rendering.ShivaVG.Raw
 
 import Foreign.C.Types
 {#import Graphics.Rendering.ShivaVG.Raw.Internal#}
+{#import Graphics.Rendering.ShivaVG.Raw.Types#}
 
 ---------------- ShivaVG extensions ----------------
 -- {{{

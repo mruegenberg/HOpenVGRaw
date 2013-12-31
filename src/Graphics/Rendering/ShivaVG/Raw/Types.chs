@@ -23,20 +23,35 @@ fromEnum' = fromIntegral . fromEnum
 
 {#enum VGPixelLayout as PixelLayout {underscoreToCase} with prefix = "VG_" deriving (Show, Eq)#}
 
-------------- Matrices -------------
+------------- Matrix Manipulation -------------
 {#enum VGMatrixMode as MatrixMode {underscoreToCase} with prefix = "VG_" deriving (Show, Eq)#}
 
--- TODO: Matrix Manipulation
+{#fun vgLoadIdentity as loadIdentity {} -> `()' #}
+
+-- TODO: 
 {-
-VG_API_CALL void vgLoadIdentity(void);
 VG_API_CALL void vgLoadMatrix(const VGfloat * m);
 VG_API_CALL void vgGetMatrix(VGfloat * m);
 VG_API_CALL void vgMultMatrix(const VGfloat * m);
-VG_API_CALL void vgTranslate(VGfloat tx, VGfloat ty);
-VG_API_CALL void vgScale(VGfloat sx, VGfloat sy);
-VG_API_CALL void vgShear(VGfloat shx, VGfloat shy);
-VG_API_CALL void vgRotate(VGfloat angle);
 -}
+
+{#fun vgTranslate as translate 
+    { `Float' -- ^ tx
+    , `Float' -- ^ ty
+    } -> `()' #}
+
+{#fun vgScale as scale 
+    { `Float' -- ^ sx
+    , `Float' -- ^ sy
+    } -> `()' #}
+
+-- TODO:
+-- VG_API_CALL void vgShear(VGfloat shx, VGfloat shy);
+
+{#fun vgRotate as rotate 
+    { `Float' -- ^ angle
+    } -> `()' #}
+
 
 ------------- Paths -------------
 {#enum VGMaskOperation as VGMaskOperation {underscoreToCase} with prefix = "VG_" deriving (Show, Eq)#}
@@ -46,8 +61,14 @@ VG_API_CALL void vgRotate(VGfloat angle);
 /* Masking and Clearing */
 VG_API_CALL void vgMask(VGImage mask, VGMaskOperation operation,
                         VGint x, VGint y, VGint width, VGint height);
-VG_API_CALL void vgClear(VGint x, VGint y, VGint width, VGint height);
 -}
+
+{#fun vgClear as clear 
+    { fromIntegral `Int' -- ^ x
+    , fromIntegral `Int' -- ^ y
+    , fromIntegral `Int' -- ^ width
+    , fromIntegral `Int' -- ^ height
+    } -> `()' #}
 
 -- | The standard path format. This is virtually always what you pass to path functions.
 {#enum define PathFormat { VG_PATH_FORMAT_STANDARD as PathFormatStandard } deriving (Show, Eq) #}

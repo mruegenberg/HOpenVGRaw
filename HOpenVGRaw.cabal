@@ -30,8 +30,8 @@ Flag UsePkgConfig
 library
   exposed-modules:     Graphics.Rendering.ShivaVG.Raw
                      , Graphics.Rendering.ShivaVG.Raw.Types
-  other-modules:       Graphics.Rendering.ShivaVG.Raw.Internal
                      , Graphics.Rendering.ShivaVG.Raw.Unsafe
+  other-modules:       Graphics.Rendering.ShivaVG.Raw.Internal
 
   hs-source-dirs:      src
 
@@ -44,13 +44,12 @@ library
     Includes: vg/openvg.h
     Extra-Libraries: OpenVG
   -- , vg/vgu.h
-  
-  -- Modules included in this library but not exported.
-  -- other-modules:       
-  
-  -- LANGUAGE extensions used by modules in this package.
-  -- other-extensions:    
-  
-  -- Directories containing source files.
 
-  
+-- very basic test suite. mostly intended as a sample and to check for very basic functionality by just running it
+Test-Suite hopenvgraw-test
+  type:       exitcode-stdio-1.0
+  main-is:    Main.hs
+  hs-source-dirs:      test
+  build-depends:       base >=4.6 && <4.7
+                     , GLUT
+                     , HOpenVGRaw
