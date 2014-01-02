@@ -28,10 +28,15 @@ Flag UsePkgConfig
   Default: False
 
 library
-  exposed-modules:     Graphics.Rendering.ShivaVG.Raw
+  exposed-modules:     Graphics.Rendering.ShivaVG.Raw.Params
+                     , Graphics.Rendering.ShivaVG.Raw.Internal
                      , Graphics.Rendering.ShivaVG.Raw.Types
+                     , Graphics.Rendering.ShivaVG.Raw.Image
+                     , Graphics.Rendering.ShivaVG.Raw.Paint
+                     , Graphics.Rendering.ShivaVG.Raw.Paths
+                     , Graphics.Rendering.ShivaVG.Raw
                      , Graphics.Rendering.ShivaVG.Raw.Unsafe
-  other-modules:       Graphics.Rendering.ShivaVG.Raw.Internal
+--   other-modules:       
 
   hs-source-dirs:      src
 
