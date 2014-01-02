@@ -36,6 +36,7 @@ library
   hs-source-dirs:      src
 
   build-depends:       base >=4.6 && <4.7
+                     , hmatrix >= 0.15
   build-tools:         c2hs
 
   if flag(UsePkgConfig)

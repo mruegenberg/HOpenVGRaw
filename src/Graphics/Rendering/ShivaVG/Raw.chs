@@ -22,11 +22,14 @@ import Foreign.C.Types
 int2Bool = toEnum . fromEnum
 
 {#fun vgCreateContextSH as createContextSH
-     { `Int',
-       `Int'
+     { `Int' -- ^ width
+     , `Int' -- ^ height
      } -> `Bool' int2Bool #}
 
-{#fun vgResizeSurfaceSH as resizeSurfaceSH { `Int', `Int' } -> `()' #}
+{#fun vgResizeSurfaceSH as resizeSurfaceSH 
+    { `Int' -- ^ width
+    , `Int' -- ^ height
+    } -> `()' #}
 
 {#fun vgDestroyContextSH as destroyContextSH {} -> `()' #}
 

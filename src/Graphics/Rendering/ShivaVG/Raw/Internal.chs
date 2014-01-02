@@ -10,7 +10,6 @@ import Foreign.Ptr
 -- these are only used internally and are mostly 
 -- directly taken from the typedefs in openvg.h
 
-
 ---------------- Basic types ----------------
 
 type VGfloat = {#type VGfloat#} -- CFloat

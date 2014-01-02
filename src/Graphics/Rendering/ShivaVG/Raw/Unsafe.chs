@@ -18,8 +18,8 @@ import Foreign.Marshal.Array
 fromEnum' :: (Enum p) => p -> CInt
 fromEnum' = fromIntegral . fromEnum
 
--- instead of ParamType, we use Int as the param type argument because different param types (e.g ParamType and PaintParamType) can be put in there
--- use fromEnum to go from ParamType to the value to use
+-- instead of the obvious choice of `ParamType` as the argument of what to set, we use Enum,
+-- since different param types can be used (e.g ParamType and PaintParamType)
 
 {#fun vgSetf as setf `(Enum p)' => { fromEnum' `p', `Float'} -> `()' #}
 
@@ -30,19 +30,20 @@ setfv :: (Enum p) => p -> [Float] -> IO ()
 setfv t vs = withArrayLen vs' (\len ptr -> vgSetfv t len ptr)
   where vs' = map realToFrac vs
         
-{#fun vgSetiv { fromEnum' `ParamType', `Int', id `Ptr VGint'} -> `()' #}
-setiv :: ParamType -> [Int] -> IO ()
+{#fun vgSetiv `(Enum p)' => { fromEnum' `p', `Int', id `Ptr VGint'} -> `()' #}
+setiv :: (Enum p) => p -> [Int] -> IO ()
 setiv t vs = withArrayLen vs' (\len ptr -> vgSetiv t len ptr)
   where vs' = map fromIntegral vs
         
-{#fun vgGetf as getf { fromEnum' `ParamType'} -> `Float' #}
+{#fun vgGetf as getf `(Enum p)' => { fromEnum' `p' } -> `Float' #}
 
-{#fun vgGeti as geti { fromEnum' `ParamType'} -> `Int' #}
+{#fun vgGeti as geti `(Enum p)' => { fromEnum' `p' } -> `Int' #}
 
-{#fun vgGetVectorSize as getVectorSize { fromEnum' `ParamType'} -> `Int' #}
+{#fun vgGetVectorSize as getVectorSize `(Enum p)' => { fromEnum' `p' } -> `Int' #}
 
-{#fun vgGetfv { fromEnum' `ParamType', `Int', id `Ptr VGfloat'} -> `()' #}             
-getfv :: ParamType -- ^ type
+{#fun vgGetfv `(Enum p)' => { fromEnum' `p', `Int', id `Ptr VGfloat'} -> `()' #}             
+getfv :: (Enum p)
+      => p -- ^ type
       -> Int -- ^ count
       -> IO [Float] -- ^ values
 getfv t c = allocaArray c $ \ptr -> do
@@ -50,8 +51,9 @@ getfv t c = allocaArray c $ \ptr -> do
   vs <- peekArray c ptr
   return (map realToFrac vs)
   
-{#fun vgGetiv { fromEnum' `ParamType', `Int', id `Ptr VGint'} -> `()' #}             
-getiv :: ParamType -- ^ type
+{#fun vgGetiv `(Enum p)' => { fromEnum' `p', `Int', id `Ptr VGint'} -> `()' #}             
+getiv :: (Enum p)
+      => p -- ^ type
       -> Int -- ^ count
       -> IO [Int] -- ^ values
 getiv t c = allocaArray c $ \ptr -> do
@@ -68,20 +70,21 @@ setParameterfv :: (Enum p) => VGHandle -> p -> [Float] -> IO ()
 setParameterfv h t vs = withArrayLen vs' (\len ptr -> vgSetParameterfv h t len ptr)
    where vs' = map realToFrac vs
 
-{#fun vgSetParameteriv { id `VGHandle', fromEnum' `ParamType', `Int', id `Ptr VGint'} -> `()' #}
-setParameteriv :: VGHandle -> ParamType -> [Int] -> IO ()
+{#fun vgSetParameteriv `(Enum p)' => { id `VGHandle', fromEnum' `p', `Int', id `Ptr VGint'} -> `()' #}
+setParameteriv :: (Enum p) => VGHandle -> p -> [Int] -> IO ()
 setParameteriv h t vs = withArrayLen vs' (\len ptr -> vgSetParameteriv h t len ptr)
    where vs' = map fromIntegral vs
          
-{#fun vgGetParameterf as getParameterf { id `VGHandle', fromEnum' `ParamType'} -> `Float' #}
+{#fun vgGetParameterf as getParameterf `(Enum p)' => { id `VGHandle', fromEnum' `p'} -> `Float' #}
 
-{#fun vgGetParameteri as getParameteri { id `VGHandle', fromEnum' `ParamType'} -> `Int' #}
+{#fun vgGetParameteri as getParameteri `(Enum p)' => { id `VGHandle', fromEnum' `p'} -> `Int' #}
 
-{#fun vgGetParameterVectorSize as getParameterVectorSize { id `VGHandle', fromEnum' `ParamType'} -> `Int' #}
+{#fun vgGetParameterVectorSize as getParameterVectorSize `(Enum p)' => { id `VGHandle', fromEnum' `p'} -> `Int' #}
 
-{#fun vgGetParameterfv { id `VGHandle', fromEnum' `ParamType', `Int', id `Ptr VGfloat'} -> `()' #}             
-getParameterfv :: VGHandle -- ^ object
-               -> ParamType -- ^ type
+{#fun vgGetParameterfv `(Enum p)' => { id `VGHandle', fromEnum' `p', `Int', id `Ptr VGfloat'} -> `()' #}             
+getParameterfv :: (Enum p)
+               => VGHandle -- ^ object
+               -> p -- ^ type
                -> Int -- ^ count
                -> IO [Float] -- ^ values
 getParameterfv h t c = allocaArray c $ \ptr -> do
@@ -89,9 +92,10 @@ getParameterfv h t c = allocaArray c $ \ptr -> do
   vs <- peekArray c ptr
   return (map realToFrac vs)
   
-{#fun vgGetParameteriv { id `VGHandle', fromEnum' `ParamType', `Int', id `Ptr VGint'} -> `()' #}             
-getParameteriv :: VGHandle -- ^ object
-               -> ParamType -- ^ type
+{#fun vgGetParameteriv `(Enum p)' => { id `VGHandle', fromEnum' `p', `Int', id `Ptr VGint'} -> `()' #}             
+getParameteriv :: (Enum p)
+               => VGHandle -- ^ object
+               -> p -- ^ type
                -> Int -- ^ count
                -> IO [Int] -- ^ values
 getParameteriv h t c = allocaArray c $ \ptr -> do
