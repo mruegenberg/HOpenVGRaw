@@ -28,15 +28,14 @@ Flag UsePkgConfig
   Default: False
 
 library
-  exposed-modules:     Graphics.Rendering.ShivaVG.Raw.Params
+  other-modules:       Graphics.Rendering.ShivaVG.Raw.Params
                      , Graphics.Rendering.ShivaVG.Raw.Internal
-                     , Graphics.Rendering.ShivaVG.Raw.Types
+                     , Graphics.Rendering.ShivaVG.Raw.Unsafe
+  exposed-modules:     Graphics.Rendering.ShivaVG.Raw.Matrix
+                     , Graphics.Rendering.ShivaVG.Raw.Paths
                      , Graphics.Rendering.ShivaVG.Raw.Image
                      , Graphics.Rendering.ShivaVG.Raw.Paint
-                     , Graphics.Rendering.ShivaVG.Raw.Paths
                      , Graphics.Rendering.ShivaVG.Raw
-                     , Graphics.Rendering.ShivaVG.Raw.Unsafe
---   other-modules:       
 
   hs-source-dirs:      src
 
@@ -59,3 +58,9 @@ Test-Suite hopenvgraw-test
   build-depends:       base >=4.6 && <4.7
                      , GLUT
                      , HOpenVGRaw
+
+  if flag(UsePkgConfig)
+    PkgConfig-Depends: libOpenVG
+  else
+    Includes: vg/openvg.h
+    Extra-Libraries: OpenVG

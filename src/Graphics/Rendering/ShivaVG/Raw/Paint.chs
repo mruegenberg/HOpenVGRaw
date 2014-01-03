@@ -8,10 +8,11 @@ module Graphics.Rendering.ShivaVG.Raw.Paint
        , createPaint
        , destroyPaint
        , setPaint
-       , getPaint
+       -- , getPaint
        , paintType
        , SRGBA(..)
        , paintColor
+       , clearColor
        , ColorRampSpreadMode(..)
        , colorRampSpreadMode
        , colorRampPremultiplied
@@ -21,8 +22,8 @@ module Graphics.Rendering.ShivaVG.Raw.Paint
        , patternTilingMode
          -- ** Color Paint
        , SRGBA8(..)
-       , setColor
-       , getColor
+       -- , setColor
+       -- , getColor
          -- ** Pattern Paint
         , paintPattern
        ) where
@@ -31,10 +32,10 @@ module Graphics.Rendering.ShivaVG.Raw.Paint
 
 import Foreign hiding (rotate)
 import Foreign.C.Types
-{#import Graphics.Rendering.ShivaVG.Raw.Image#}
-{#import Graphics.Rendering.ShivaVG.Raw.Paths#}
-{#import Graphics.Rendering.ShivaVG.Raw.Internal#}
-{#import Graphics.Rendering.ShivaVG.Raw.Unsafe#}
+import Graphics.Rendering.ShivaVG.Raw.Image
+import Graphics.Rendering.ShivaVG.Raw.Paths
+import Graphics.Rendering.ShivaVG.Raw.Internal
+import Graphics.Rendering.ShivaVG.Raw.Unsafe
 import Graphics.Rendering.ShivaVG.Raw.Params
 
 import Data.Word(Word8)
@@ -65,13 +66,16 @@ import Data.Word(Word8)
 
 -- | Paint type
 paintType :: Paint -> Param PaintType
-paintType (Paint p) = enumParam p PaintType
+paintType (Paint p) = hEnumParam p PaintType
 
 -- | An sRGBA color, with components as values between 0.0 and 1.0
 data SRGBA = SRGBA { red :: !Float, green :: !Float, blue :: !Float, alpha :: !Float } deriving (Eq, Show)
 
 paintColor :: Paint -> Param SRGBA
-paintColor (Paint p) = fvParam p PaintColor (\(SRGBA r g b a) -> [r,g,b,a]) (\[r,g,b,a] -> SRGBA r g b a)
+paintColor (Paint p) = hFVParam p PaintColor (\(SRGBA r g b a) -> [r,g,b,a]) (\[r,g,b,a] -> SRGBA r g b a)
+
+clearColor :: Param SRGBA
+clearColor = fvParam ClearColor (\(SRGBA r g b a) -> [r,g,b,a]) (\[r,g,b,a] -> SRGBA r g b a)
 
 -- | The application may only define stops with offsets between 0 and 1. Spread modes define how the given set of stops are repeated or extended in order to define interpolated color values for arbitrary input values outside the [0,1] range.
 -- 
@@ -83,22 +87,19 @@ paintColor (Paint p) = fvParam p PaintColor (\(SRGBA r g b a) -> [r,g,b,a]) (\[r
 {#enum VGColorRampSpreadMode as ColorRampSpreadMode {underscoreToCase} with prefix = "VG_" deriving (Show, Eq)#}
 
 colorRampSpreadMode :: Paint -> Param ColorRampSpreadMode
-colorRampSpreadMode (Paint p) = enumParam p PaintColorRampSpreadMode
+colorRampSpreadMode (Paint p) = hEnumParam p PaintColorRampSpreadMode
 
 colorRampPremultiplied :: Paint -> Param Bool
-colorRampPremultiplied (Paint p) = boolParam p PaintColorRampPremultiplied
+colorRampPremultiplied (Paint p) = hBoolParam p PaintColorRampPremultiplied
 
 colorRampStops :: Paint -> Param [Float]
-colorRampStops (Paint p) = fvParam p PaintColorRampStops id id
+colorRampStops (Paint p) = hFVParam p PaintColorRampStops id id
 
 -- TODO: paintLinearGradient
 -- TODO: paintRadialGradient
 
--- | Defines possible methods for defining colors for source pixels that lie outside the bounds of the source image.
-{#enum VGTilingMode as TilingMode {underscoreToCase} with prefix = "VG_" deriving (Show, Eq)#}
-
 patternTilingMode :: Paint -> Param TilingMode
-patternTilingMode (Paint p) = enumParam p PaintPatternTilingMode
+patternTilingMode (Paint p) = hEnumParam p PaintPatternTilingMode
 
 -- | A shorthand for sRGBA colors, with values between 0 and 255 for each channel
 data SRGBA8 = SRGBA8 { red8 :: !Word8, green8 :: !Word8, blue8 :: !Word8, alpha8 :: !Word8 } deriving (Eq, Show)

@@ -1,8 +1,9 @@
 {-# LANGUAGE ForeignFunctionInterface #-}
-module Graphics.Rendering.ShivaVG.Raw.Types 
+module Graphics.Rendering.ShivaVG.Raw.Matrix 
        (
          -- * Matrix Manipulation
          MatrixMode(..)
+       , matrixMode
        , loadIdentity  
        , loadMatrix
        , getMatrix
@@ -17,9 +18,9 @@ module Graphics.Rendering.ShivaVG.Raw.Types
 
 import Foreign hiding (rotate)
 import Foreign.C.Types
-{#import Graphics.Rendering.ShivaVG.Raw.Paths#}
-{#import Graphics.Rendering.ShivaVG.Raw.Image#}
-{#import Graphics.Rendering.ShivaVG.Raw.Internal#}
+import Graphics.Rendering.ShivaVG.Raw.Params
+import Graphics.Rendering.ShivaVG.Raw.Internal
+import Graphics.Rendering.ShivaVG.Raw.Unsafe
 
 import Data.Packed.Matrix(Matrix,(><))
 import qualified Data.Packed.Matrix as Matrix
@@ -33,6 +34,9 @@ import Data.Word(Word8)
 
 -- | The current matrix to be manipulated is specified by setting the matrix mode. Separate matrices are maintained for transforming paths, images, and paint (gradients and patterns). 
 {#enum VGMatrixMode as MatrixMode {underscoreToCase} with prefix = "VG_" deriving (Show, Eq)#}
+
+matrixMode :: Param MatrixMode
+matrixMode = enumParam MatrixMode
 
 -- | Sets the current matrix M to the identity matrix
 {#fun vgLoadIdentity as loadIdentity {} -> `()' #}
@@ -92,48 +96,3 @@ multMatrix m = assert (Matrix.rows m == 3 && Matrix.cols m == 3) $
 {#fun vgRotate as rotate 
     { `Float' -- ^ angle
     } -> `()' #}
-
-
-------------- Image Filters -------------
-
-{#enum VGImageChannel as ImageChannel {underscoreToCase} with prefix = "VG_" deriving (Show, Eq)#}
-
-{#enum VGBlendMode as BlendMode {underscoreToCase} with prefix = "VG_" deriving (Show, Eq)#}
-
-{-
-/* Image Filters */
-VG_API_CALL void vgColorMatrix(VGImage dst, VGImage src,
-                               const VGfloat * matrix);
-VG_API_CALL void vgConvolve(VGImage dst, VGImage src,
-                            VGint kernelWidth, VGint kernelHeight,
-                            VGint shiftX, VGint shiftY,
-                            const VGshort * kernel,
-                            VGfloat scale,
-                            VGfloat bias,
-                            VGTilingMode tilingMode);
-VG_API_CALL void vgSeparableConvolve(VGImage dst, VGImage src,
-                                     VGint kernelWidth,
-                                     VGint kernelHeight,
-                                     VGint shiftX, VGint shiftY,
-                                     const VGshort * kernelX,
-                                     const VGshort * kernelY,
-                                     VGfloat scale,
-                                     VGfloat bias,
-                                     VGTilingMode tilingMode);
-VG_API_CALL void vgGaussianBlur(VGImage dst, VGImage src,
-                                VGfloat stdDeviationX,
-                                VGfloat stdDeviationY,
-                                VGTilingMode tilingMode);
-VG_API_CALL void vgLookup(VGImage dst, VGImage src,
-                          const VGubyte * redLUT,
-                          const VGubyte * greenLUT,
-                          const VGubyte * blueLUT,
-                          const VGubyte * alphaLUT,
-                          VGboolean outputLinear,
-                          VGboolean outputPremultiplied);
-VG_API_CALL void vgLookupSingle(VGImage dst, VGImage src,
-                                const VGuint * lookupTable,
-                                VGImageChannel sourceChannel,
-                                VGboolean outputLinear,
-                                VGboolean outputPremultiplied);
--}

@@ -9,7 +9,7 @@ module Graphics.Rendering.ShivaVG.Raw.Unsafe where
 import Foreign.C.Types
 import Foreign.Ptr
 import Foreign.Marshal.Array
-{#import Graphics.Rendering.ShivaVG.Raw.Internal#}
+import Graphics.Rendering.ShivaVG.Raw.Internal
 
 {#enum VGParamType as ParamType {underscoreToCase} with prefix = "VG_" deriving (Show, Eq)#}
 

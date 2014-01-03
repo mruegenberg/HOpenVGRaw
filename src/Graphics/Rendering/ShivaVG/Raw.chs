@@ -5,21 +5,32 @@ module Graphics.Rendering.ShivaVG.Raw
          createContextSH
        , resizeSurfaceSH
        , destroyContextSH
+         -- * Getting and setting parameters:
+       , Param
+       , get
+       , set
          -- * Modules
-       , module Graphics.Rendering.ShivaVG.Raw.Types
+       , module Graphics.Rendering.ShivaVG.Raw.Matrix
        , module Graphics.Rendering.ShivaVG.Raw.Paths
        , module Graphics.Rendering.ShivaVG.Raw.Image
+       , module Graphics.Rendering.ShivaVG.Raw.Paint
          -- * Errors
        , ErrorCode(..)
        , getError
          -- * Rendering Quality and Antialiasing
        , RenderingQuality(..)
+       , renderingQuality
        , PixelLayout(..)
+       , pixelLayout
+       , screenLayout
+         -- not implemented in ShivaVG:
+         {-
          -- * Querying Hardware Capabilities
        , HardwareQueryType(..)
        , HardwareQueryResult(..)
        , hardwareQueryImageFormat
        , hardwareQueryPathDatatype
+          -}
          -- * Extension Information
        , getString
          -- * Forcing drawing to complete
@@ -33,11 +44,13 @@ module Graphics.Rendering.ShivaVG.Raw
 import Foreign hiding (rotate)
 import Foreign.C.Types
 import Foreign.C.String(peekCString)
-{#import Graphics.Rendering.ShivaVG.Raw.Internal#}
-{#import Graphics.Rendering.ShivaVG.Raw.Types#}
-{#import Graphics.Rendering.ShivaVG.Raw.Paths#}
-{#import Graphics.Rendering.ShivaVG.Raw.Image#}
-{#import Graphics.Rendering.ShivaVG.Raw.Paint#}
+import Graphics.Rendering.ShivaVG.Raw.Params
+import Graphics.Rendering.ShivaVG.Raw.Unsafe
+import Graphics.Rendering.ShivaVG.Raw.Internal
+import Graphics.Rendering.ShivaVG.Raw.Matrix
+import Graphics.Rendering.ShivaVG.Raw.Paths
+import Graphics.Rendering.ShivaVG.Raw.Image
+import Graphics.Rendering.ShivaVG.Raw.Paint
 
 ---------------- ShivaVG extensions ----------------
 -- {{{
@@ -70,11 +83,22 @@ int2Bool = toEnum . fromEnum
 -- | Default: `RenderingQualityBetter`
 {#enum VGRenderingQuality as RenderingQuality {underscoreToCase} with prefix = "VG_" deriving (Show, Eq)#}
 
+renderingQuality :: Param RenderingQuality
+renderingQuality = enumParam RenderingQuality
+
 -- | Describes a number of possible geometric layouts of the red, green, and blue emissive or reflective elements within a pixel. This information may be used as a hint to the rendering engine to improve rendering quality.
 {#enum VGPixelLayout as PixelLayout {underscoreToCase} with prefix = "VG_" deriving (Show, Eq)#}
 
+pixelLayout :: Param PixelLayout
+pixelLayout = enumParam PixelLayout
+
+screenLayout :: Param PixelLayout
+screenLayout = enumParam ScreenLayout
+
 ------------- Hardware queries -------------
 
+-- not implemented in ShivaVG:
+{-
 {#enum VGHardwareQueryType as HardwareQueryType {underscoreToCase} with prefix = "VG_" deriving (Show, Eq)#}
 
 {#enum VGHardwareQueryResult as HardwareQueryResult {underscoreToCase} with prefix = "VG_" deriving (Show, Eq)#}
@@ -90,6 +114,7 @@ hardwareQueryImageFormat setting = vgHardwareQuery ImageFormatQuery (fromEnum se
 hardwareQueryPathDatatype :: PathDatatype -- ^ setting
                           -> IO HardwareQueryResult
 hardwareQueryPathDatatype setting = vgHardwareQuery PathDatatypeQuery (fromEnum setting)
+-}
 
 ------------- Extension Information -------------
 

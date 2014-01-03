@@ -7,7 +7,7 @@ module Graphics.Rendering.ShivaVG.Raw.Paths
        , pathFormat
        , PathDatatype(..)
        , pathDatatype
-       , AbsRel
+       , AbsRel(..)
        , PathCommand(..)
          -- * Path Operations
        , Path
@@ -29,15 +29,25 @@ module Graphics.Rendering.ShivaVG.Raw.Paths
        , pathNumSegments
        , transformPath
        , interpolatePath
-       , pathLength
-       , pointAlongPath
+       -- not implemented in ShivaVG:
+       -- , pathLength
+       -- , pointAlongPath
        , pathBounds
        , pathTransformedBounds
          -- * Interpretation of Paths
+         -- ** Stroke Parameters
+       , strokeLineWidth
        , CapStyle(..)
+       , strokeCapStyle
        , JoinStyle(..)
+       , strokeJoinStyle
+       , strokeMiterLimit
+       , strokeDashPhase
+         -- ** Filling
        , FillRule(..)
+       , fillRule
        , PaintMode(..)
+         -- ** Drawing
        , drawPath
        ) where
 
@@ -45,8 +55,9 @@ module Graphics.Rendering.ShivaVG.Raw.Paths
 
 import Foreign hiding (rotate)
 import Foreign.C.Types
-{#import Graphics.Rendering.ShivaVG.Raw.Internal#}
-{#import Graphics.Rendering.ShivaVG.Raw.Unsafe#}
+import Graphics.Rendering.ShivaVG.Raw.Params
+import Graphics.Rendering.ShivaVG.Raw.Internal
+import Graphics.Rendering.ShivaVG.Raw.Unsafe
 
 {#enum VGPathParamType as PathParamType {underscoreToCase} with prefix = "VG_" deriving (Show, Eq)#}
 
@@ -254,6 +265,11 @@ modifyPathCoords p startIndex cmds =
     , `Float' -- ^ amount
     } -> `Bool' #}
 
+peekFloat :: Ptr CFloat -> IO Float
+peekFloat ptr = peek ptr >>= (return . realToFrac)
+
+-- not implemented in ShivaVG:
+{-
 -- | Returns the length of a given portion of a path in the user coordinate system (that is, in the path’s own coordinate system, disregarding any matrix settings). Only the subpath consisting of the numSegments path segments beginning with startSegment (where the initial path segment has index 0) is used. If an error occurs, -1.0f is returned.
 -- The `PathCapabilityPathLength` capability must be enabled for path.
 {#fun vgPathLength as pathLength
@@ -261,9 +277,6 @@ modifyPathCoords p startIndex cmds =
     , `Int' -- ^ startSegment
     , `Int' -- ^ numSegments
     } -> `Float' #}
-
-peekFloat :: Ptr CFloat -> IO Float
-peekFloat ptr = peek ptr >>= (return . realToFrac)
 
 -- | returns the point lying a given distance along a given portion of a path and the unit-length tangent vector at that point. Only the subpath consisting of the numSegments path segments beginning with startSegment (where the initial path segment has index 0) is used. 
 {#fun vgPointAlongPath as pointAlongPath
@@ -276,6 +289,7 @@ peekFloat ptr = peek ptr >>= (return . realToFrac)
     , alloca- `Float' peekFloat* -- ^ tangentX
     , alloca- `Float' peekFloat* -- ^ tangentY
     } -> `()' #}
+-}
 
 -- | Returns an axis-aligned bounding box that tightly bounds the interior of the given path. Stroking parameters are ignored.
 {#fun vgPathBounds as pathBounds
@@ -295,14 +309,35 @@ peekFloat ptr = peek ptr >>= (return . realToFrac)
     , alloca- `Float' peekFloat* -- ^ height
     } -> `()' #}
 
+strokeLineWidth :: Param Float
+strokeLineWidth = floatParam StrokeLineWidth
+
 -- | Defines constants for the Butt, Round, and Square end cap styles
 {#enum VGCapStyle as CapStyle {underscoreToCase} with prefix = "VG_" deriving (Show, Eq)#}
+
+strokeCapStyle :: Param CapStyle
+strokeCapStyle = enumParam StrokeCapStyle
 
 -- | Defines constants for the Miter, Round, and Bevel line join styles
 {#enum VGJoinStyle as JoinStyle {underscoreToCase} with prefix = "VG_" deriving (Show, Eq)#}
 
+strokeJoinStyle :: Param JoinStyle
+strokeJoinStyle = enumParam StrokeJoinStyle
+
+strokeMiterLimit :: Param Float
+strokeMiterLimit = floatParam StrokeMiterLimit
+
+strokeDashPhase :: Param Float
+strokeDashPhase = floatParam StrokeDashPhase
+
+strokeDashPhaseReset :: Param Bool
+strokeDashPhaseReset = boolParam StrokeDashPhaseReset
+
 -- | Constants for the even/odd and non- zero fill rules.
 {#enum VGFillRule as FillRule {underscoreToCase} with prefix = "VG_" deriving (Show, Eq)#}
+
+fillRule :: Param FillRule
+fillRule = enumParam FillRule
 
 -- | Constants for stroking and filling paths, to be used by the `drawPath`, `setPaint`, and `getPaint` functions.
 {#enum VGPaintMode as PaintMode {underscoreToCase} with prefix = "VG_" deriving (Show, Eq)#}

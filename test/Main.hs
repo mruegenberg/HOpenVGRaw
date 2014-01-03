@@ -1,5 +1,4 @@
-import Graphics.Rendering.ShivaVG.Raw
-import Graphics.Rendering.ShivaVG.Raw.Unsafe
+import qualified Graphics.Rendering.ShivaVG.Raw as VG
 import qualified Graphics.UI.GLUT as GLUT
 import Graphics.UI.GLUT(($=))
 
@@ -15,43 +14,42 @@ sx = 1.0 :: Float
 sy = 1.0 :: Float
 a = 0.0 :: Float
 
-testCreatePath :: IO Path
-testCreatePath = createPath PathFormatStandard PathDatatypeF 1 0 0 0 [PathCapabilityAll]
+testCreatePath :: IO VG.Path
+testCreatePath = VG.createPath VG.PathFormatStandard VG.PathDatatypeF 1 0 0 0 [VG.PathCapabilityAll]
 
-initDrawing :: IO (Path, Paint)
+initDrawing :: IO (VG.Path, VG.Paint)
 initDrawing = do
   p <- testCreatePath
-  redFill <- createPaint
-  let (Paint ph) = redFill
-  setParameterfv ph PaintColor [1,0,0,1]
+  redFill <- VG.createPaint
+  VG.set (VG.paintColor redFill) (VG.SRGBA 1 0 0 1)
       
-  appendPathData p [(MoveToAbs, ((fromIntegral (w - sqx))/2, (fromIntegral (h - sqy)) / 2)),
-                    (LineToRel, (fromIntegral sqx, 0)),
-                    (LineToRel, (0, fromIntegral sqy)),
-                    (LineToRel, (fromIntegral (-sqx), 0))]
-  closePath p
+  VG.appendPathData p [(VG.MoveTo ((fromIntegral (w - sqx))/2) ((fromIntegral (h - sqy)) / 2), VG.Absolute),
+                       (VG.LineTo (fromIntegral sqx) 0, VG.Relative),
+                       (VG.LineTo 0 (fromIntegral sqy), VG.Relative),
+                       (VG.LineTo (fromIntegral (-sqx)) 0, VG.Relative)]
+  VG.closePath p
   
   return (p,redFill)
 
-display :: (Path, Paint) -> IO ()
+display :: (VG.Path, VG.Paint) -> IO ()
 display (p,redFill) = do
   putStrLn "display!"
   
-  setfv ClearColor [0,0,0,1]
-  clear 0 0 w h
+  VG.set VG.clearColor (VG.SRGBA 0 0 0 1)
+  VG.clear 0 0 w h
   
-  seti MatrixMode (fromEnum MatrixFillPaintToUser)
+  VG.set VG.matrixMode VG.MatrixFillPaintToUser
   
-  loadIdentity
-  translate tx ty
-  scale sx sy
-  rotate a
-
-  seti MatrixMode (fromEnum MatrixPathUserToSurface)
-  loadIdentity
+  VG.loadIdentity
+  VG.translate tx ty
+  VG.scale sx sy
+  VG.rotate a
   
-  setPaint redFill [FillPath]
-  drawPath p [FillPath]
+  VG.set VG.matrixMode VG.MatrixPathUserToSurface
+  VG.loadIdentity
+  
+  VG.setPaint redFill [VG.FillPath]
+  VG.drawPath p [VG.FillPath]
   
   
   
@@ -68,7 +66,7 @@ main = do
   GLUT.initialWindowSize $= GLUT.Size (fromIntegral w) (fromIntegral h)
   GLUT.createWindow "OpenVG Test"
   
-  createContextSH w h
+  VG.createContextSH w h
   (p,redFill) <- initDrawing
   
   GLUT.displayCallback $= (display (p,redFill))
